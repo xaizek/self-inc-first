@@ -1,8 +1,8 @@
 Brief description
 -----------------
 
-Clang-based standalone tool that checks that self include for each of passed
-source is the first one in the file.
+Clang-based standalone tool that checks for first included file being self
+include.
 
 Building
 --------
