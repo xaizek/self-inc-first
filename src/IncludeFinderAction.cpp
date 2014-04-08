@@ -30,72 +30,103 @@
 namespace
 {
 
-class Callbacks : public clang::PPCallbacks
+class CallbacksProxy : public clang::PPCallbacks
 {
 public:
-    Callbacks(clang::PPCallbacks &master)
-        : master(master)
-    {
-    }
+    inline CallbacksProxy(clang::PPCallbacks &master);
 
 public:
-    virtual void InclusionDirective(clang::SourceLocation hashLoc,
-                                    const clang::Token &includeTok,
-                                    clang::StringRef fileName,
-                                    bool isAngled,
-                                    clang::CharSourceRange filenameRange,
-                                    const clang::FileEntry *file,
-                                    clang::StringRef searchPath,
-                                    clang::StringRef relativePath,
-                                    const clang::Module *imported)
-    {
-        master.InclusionDirective(hashLoc,
-                                  includeTok,
-                                  fileName,
-                                  isAngled,
-                                  filenameRange,
-                                  file,
-                                  searchPath,
-                                  relativePath,
-                                  imported);
-    }
+    virtual inline void InclusionDirective(clang::SourceLocation hashLoc,
+                                           const clang::Token &includeTok,
+                                           clang::StringRef fileName,
+                                           bool isAngled,
+                                           clang::CharSourceRange filenameRange,
+                                           const clang::FileEntry *file,
+                                           clang::StringRef searchPath,
+                                           clang::StringRef relativePath,
+                                           const clang::Module *imported);
 
 private:
     clang::PPCallbacks &master;
 };
 
+inline
+CallbacksProxy::CallbacksProxy(clang::PPCallbacks &master)
+    : master(master)
+{
+}
+
+inline void
+CallbacksProxy::InclusionDirective(clang::SourceLocation hashLoc,
+                                   const clang::Token &includeTok,
+                                   clang::StringRef fileName,
+                                   bool isAngled,
+                                   clang::CharSourceRange filenameRange,
+                                   const clang::FileEntry *file,
+                                   clang::StringRef searchPath,
+                                   clang::StringRef relativePath,
+                                   const clang::Module *imported)
+{
+    master.InclusionDirective(hashLoc,
+                              includeTok,
+                              fileName,
+                              isAngled,
+                              filenameRange,
+                              file,
+                              searchPath,
+                              relativePath,
+                              imported);
+}
+
 class IncludeFinder : private clang::PPCallbacks
 {
 public:
-    explicit IncludeFinder(const clang::CompilerInstance &compiler)
-        : compiler(compiler)
-    {
-    }
+    explicit inline IncludeFinder(const clang::CompilerInstance &compiler);
 
 public:
-    clang::PPCallbacks * createPreprocessorCallbacks()
-    {
-        return new Callbacks(*this);
-    }
+    inline clang::PPCallbacks * createPreprocessorCallbacks();
 
-    virtual void InclusionDirective(clang::SourceLocation hashLoc,
-                                    const clang::Token &includeTok,
-                                    clang::StringRef fileName,
-                                    bool isAngled,
-                                    clang::CharSourceRange filenameRange,
-                                    const clang::FileEntry *file,
-                                    clang::StringRef searchPath,
-                                    clang::StringRef relativePath,
-                                    const clang::Module *imported)
-    {
-        if (compiler.getSourceManager().isInMainFile(hashLoc)) {
-            std::cout << fileName.str() << std::endl;
-        }
-    }
+    virtual inline void InclusionDirective(clang::SourceLocation hashLoc,
+                                           const clang::Token &includeTok,
+                                           clang::StringRef fileName,
+                                           bool isAngled,
+                                           clang::CharSourceRange filenameRange,
+                                           const clang::FileEntry *file,
+                                           clang::StringRef searchPath,
+                                           clang::StringRef relativePath,
+                                           const clang::Module *imported);
 
 private:
     const clang::CompilerInstance &compiler;
 };
+
+inline
+IncludeFinder::IncludeFinder(const clang::CompilerInstance &compiler)
+    : compiler(compiler)
+{
+}
+
+inline clang::PPCallbacks *
+IncludeFinder::createPreprocessorCallbacks()
+{
+    return new CallbacksProxy(*this);
+}
+
+inline void
+IncludeFinder::InclusionDirective(clang::SourceLocation hashLoc,
+                                  const clang::Token &includeTok,
+                                  clang::StringRef fileName,
+                                  bool isAngled,
+                                  clang::CharSourceRange filenameRange,
+                                  const clang::FileEntry *file,
+                                  clang::StringRef searchPath,
+                                  clang::StringRef relativePath,
+                                  const clang::Module *imported)
+{
+    if (compiler.getSourceManager().isInMainFile(hashLoc)) {
+        std::cout << fileName.str() << std::endl;
+    }
+}
 
 }
 
