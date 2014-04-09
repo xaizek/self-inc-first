@@ -178,10 +178,15 @@ IncludeFinder::diagnoseAndReport()
                               << hdrName
                               << std::endl;
                 }
+            } else {
+                std::cout << name
+                          << ':'
+                          << "unexpected extension: "
+                          << nameParts.second
+                          << std::endl;
             }
         }
     }
-
 
     if (!selfInclude.second.empty() && !includes.empty()) {
         if (includes[0] != selfInclude) {
@@ -193,7 +198,6 @@ IncludeFinder::diagnoseAndReport()
                       << std::endl;
         }
     }
-
 }
 
 inline void
