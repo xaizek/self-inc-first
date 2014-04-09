@@ -159,7 +159,8 @@ IncludeFinder::diagnoseAndReport()
 
     typedef Includes::iterator It;
     for (It it = includes.begin(); it != includes.end(); ++it) {
-        const std::string &hdrName = it->second;
+        const std::string &hdrPath = it->second;
+        const std::string &hdrName = path_utils::extractTail(hdrPath);
 
         const std::pair<std::string, std::string> nameParts =
             path_utils::crackName(hdrName);
@@ -175,7 +176,7 @@ IncludeFinder::diagnoseAndReport()
                     std::cout << name
                               << ':'
                               << "ambiguous header name detection: "
-                              << hdrName
+                              << hdrPath
                               << std::endl;
                 }
             } else {
