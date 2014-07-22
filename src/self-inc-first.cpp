@@ -51,5 +51,5 @@ main(int argc, const char *argv[])
     } diagConsumer;
     tool.setDiagnosticConsumer(&diagConsumer);
 
-    return tool.run(newFrontendActionFactory<IncludeFinderAction>());
+    return tool.run(newFrontendActionFactory<IncludeFinderAction>().get());
 }
